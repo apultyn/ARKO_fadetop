@@ -10,10 +10,11 @@ fadetop:
     push ebp
     mov	ebp, esp
 
-    mov esi, [ebp+8]     ; picture
-    mov edx, [ebp+12]    ; width
-    mov ecx, [ebp+16]    ; height
-    mov edi, [ebp+20]    ; dist
+    mov edi, [ebp+8]    ; picture
+    mov ebx, [ebp+12]   ; width
+    mov ecx, [ebp+16]   ; height
+    mov edx, [ebp+20]   ; dist
 
+    mov esp, ebp
     pop	ebp
 	ret
