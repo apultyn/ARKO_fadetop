@@ -17,5 +17,14 @@ int main(int argc, char* argv[])
   fread(&height, sizeof(int), 1, file);
 
   printf("Parametry obrazu: szerokość - %i, wysokość - %i\n", width, height);
+
+  int img_size = width * height * 3;
+  unsigned int *image = malloc(img_size);
+
+  fseek(file, 54, SEEK_SET);    // wczytanie danych obrazu
+  fread(image, sizeof(unsigned int), img_size, file);
+
+  fclose(file);
+
   return 0;
 }

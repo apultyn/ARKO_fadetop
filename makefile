@@ -6,7 +6,7 @@ CCOPT =
 NASMOPT = -w+all
 
 .c.o:
-	cc $(CCFMT) $(CCOPT) -c $<
+	cc -g $(CCFMT) $(CCOPT) -c $<
 
 $(EXEFILE): $(OBJECTS)
 	cc $(CCFMT) -o $@ $^
