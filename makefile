@@ -12,7 +12,7 @@ $(EXEFILE): $(OBJECTS)
 	cc $(CCFMT) -o $@ $^
 
 %.o: %.asm
-	nasm $(NASMFMT) $(NASMOPT) -o $@ $<
+	nasm -g $(NASMFMT) $(NASMOPT) -o $@ $<
 
 clean:
 	rm *.o $(EXEFILE)
