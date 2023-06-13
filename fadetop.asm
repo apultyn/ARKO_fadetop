@@ -34,17 +34,44 @@ loop_row:
     add eax, ecx
     sub eax, [ebp+16]
     add eax, [ebp+20]
-    idiv dword [ebp+20]
+
+    mov dword [ebp-4], eax
+
+    fld dword [ebp-4]
+    fld dword [ebp+20]
+    fdiv ST0, ST1
 
 loop_color:
-    mov edx, [edi] ; get color
+    cmp byte [edi], 0
+    jl done_pixel
+
+    mov ebx, 255
+    sub al, byte [edi]
+
+    mov dword [ebp-8], ebx
+    fld dword [ebp-8]
+    fdiv ST0, ST1
+
+done_pixel:
     dec edi
     dec esi
 
-    mov ebx, dword 255
-    sub ebx, edx
+    test esi, esi
+    jnz loop_color
+
+    dec ecx
+
+    mov ebx, [ebp+16]
+    sub ebx, [ebp+20]
+    cmp ecx, ebx
+    jge loop_row
+
+    test ecx, ecx
+    jnz loop_row
 
 end:
+    pop esi
+    pop edi
     mov esp, ebp
     pop	ebp
 	ret

@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
   char* filename = argv[1];
   int dist = atoi(argv[2]);
 
-  int width, height;
+  int width, height, bit_per_pix;
 
   FILE* file = fopen(filename, "rb");
 
@@ -23,7 +23,11 @@ int main(int argc, char* argv[])
   fread(&width, sizeof(int), 1, file);
   fread(&height, sizeof(int), 1, file);
 
+  fseek(file, 28, SEEK_SET);
+  fread(&bit_per_pix, sizeof(int), 1, file);
+
   printf("Parametry obrazu: szerokość - %i, wysokość - %i\n", width, height);
+  printf("Bity na pixel: %i\n", bit_per_pix);
 
   // tworzenie bufora na tablicę pixeli
   int img_size = width * height * 3;
