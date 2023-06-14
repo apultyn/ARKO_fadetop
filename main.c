@@ -26,18 +26,23 @@ int main(int argc, char* argv[])
   fseek(file, 28, SEEK_SET);
   fread(&bit_per_pix, sizeof(int), 1, file);
 
-  printf("Parametry obrazu: szerokość - %i, wysokość - %i\n", width, height);
-  printf("Bity na pixel: %i\n", bit_per_pix);
+  // Liczenie wielkości tabeli pixeli
+  int rowSize = bit_per_pix * width * 4 / 32;
 
   // tworzenie bufora na tablicę pixeli
-  int img_size = width * height * 3;
+  int img_size = rowSize * height;
   uint8_t *image = malloc(img_size);
+
+  printf("Parametry obrazu: szerokość - %i, wysokość - %i\n", width, height);
+  printf("Bity na pixel: %i\n", bit_per_pix);
+  printf("Szerokość wiersza: %i\n", rowSize);
+  printf("Wielkość tabeli pixeli: %i\n", img_size);
 
   // wczytanie tablicy pixeli
   fseek(file, 54, SEEK_SET);
   fread(image, sizeof(uint8_t), img_size, file);
 
-  fadetop(image, width, height, dist);
+  // fadetop(image, width, height, dist);
 
   FILE* output_file = fopen("output.bmp", "wb");
 
