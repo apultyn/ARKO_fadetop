@@ -36,22 +36,31 @@ int main(int argc, char* argv[])
     return 0;
   }
 
+  int headerSize = 54; // Assuming a standard BMP header size of 54 bytes
+  int pixelDataOffset;
+  fseek(file, 10, SEEK_SET);
+  fread(&pixelDataOffset, sizeof(int), 1, file);
+
+
   // Liczenie szerokości tabeli pixeli
-  int rowSize = ceil(bit_per_pix * width / 32) * 4;
+  int bytesPerPixel = bit_per_pix / 8;
+  int padding = (4 - (width * bytesPerPixel) % 4) % 4;
+  int rowSize = (width * bytesPerPixel + padding);
 
   // tworzenie bufora na tablicę pixeli
   int img_size = rowSize * height;
   uint8_t *image = malloc(img_size);
 
-  printf("Parametry obrazu: szerokość - %i, wysokość - %i\n", width, height);
-  printf("Szerokość wiersza: %i\n", rowSize);
-  printf("Wielkość tabeli pixeli: %i\n", img_size);
+  printf("Parametry obrazu: szerokość - %i px, wysokość - %i px\n", width, height);
+  printf("Szerokość wiersza: %iB\n", rowSize);
+  printf("Wielkość tabeli pixeli: %iB\n", img_size);
+  printf("Pixel data offset: %i\n", pixelDataOffset);
 
   // wczytanie tablicy pixeli
-  fseek(file, 54, SEEK_SET);
+  fseek(file, pixelDataOffset, SEEK_SET);
   fread(image, sizeof(uint8_t), img_size, file);
 
-  // fadetop(image, width, height, dist);
+  // fadetop(image, rowSize, height, dist);
 
   FILE* output_file = fopen("output.bmp", "wb");
 
@@ -63,6 +72,7 @@ int main(int argc, char* argv[])
   free(buffer);
 
   // wpisanie zmodyfikowanej tablicy pikseli
+  fseek(output_file, pixelDataOffset, SEEK_SET);
   fwrite(image, sizeof(uint8_t), img_size, output_file);
 
   fclose(file);

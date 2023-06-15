@@ -1,5 +1,5 @@
 ;==========================================================
-; fadetop - brigthning bmp file
+; fadetop - brigthning bmp file (24 bits per pixel)
 ; Andrzej Pultyn
 ;==========================================================
 section	.text
@@ -20,26 +20,16 @@ fadetop:
     cmp edx, 0          ; verify, if dist greater than 0
     jle end
 
-    mov esi, [ebp+12]   ; set column to the last color of last pixel in row
-    imul esi, 3
-
     add edi, esi        ; set pointer to the last element of data
     add edi, ecx
 
 loop_row:
     mov esi, [ebp+12]   ; set column to the last color of last pixel in row
-    imul esi, 3
 
     mov edx, 0          ; calculate the percentage
     add eax, ecx
     sub eax, [ebp+16]
     add eax, [ebp+20]
-
-    mov dword [ebp-4], eax
-
-    fld dword [ebp-4]
-    fld dword [ebp+20]
-    fdiv ST0, ST1
 
 loop_color:
     cmp byte [edi], 0
