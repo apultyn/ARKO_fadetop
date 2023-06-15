@@ -1,15 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <math.h>
 
 extern void fadetop(void *img, int width, int height, int dist);
+
+
+const int bit_per_pix = 24;
+
 
 int main(int argc, char* argv[])
 {
   char* filename = argv[1];
   int dist = atoi(argv[2]);
 
-  int width, height, bit_per_pix;
+  int width, height, actual_bit_per_pix;
 
   FILE* file = fopen(filename, "rb");
 
@@ -24,17 +29,21 @@ int main(int argc, char* argv[])
   fread(&height, sizeof(int), 1, file);
 
   fseek(file, 28, SEEK_SET);
-  fread(&bit_per_pix, sizeof(int), 1, file);
+  fread(&actual_bit_per_pix, sizeof(int), 1, file);
+  if (actual_bit_per_pix != bit_per_pix)
+  {
+    printf("Wrong bits per pixel parameter!\n");
+    return 0;
+  }
 
-  // Liczenie wielkości tabeli pixeli
-  int rowSize = bit_per_pix * width * 4 / 32;
+  // Liczenie szerokości tabeli pixeli
+  int rowSize = ceil(bit_per_pix * width / 32) * 4;
 
   // tworzenie bufora na tablicę pixeli
   int img_size = rowSize * height;
   uint8_t *image = malloc(img_size);
 
   printf("Parametry obrazu: szerokość - %i, wysokość - %i\n", width, height);
-  printf("Bity na pixel: %i\n", bit_per_pix);
   printf("Szerokość wiersza: %i\n", rowSize);
   printf("Wielkość tabeli pixeli: %i\n", img_size);
 
