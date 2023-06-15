@@ -20,44 +20,20 @@ fadetop:
     cmp edx, 0          ; verify, if dist greater than 0
     jle end
 
-    add edi, esi        ; set pointer to the last element of data
-    add edi, ecx
+    mov eax, esi
+    imul eax, ecx
+    add edi, eax
+    sub edi, 1
 
 loop_row:
-    mov esi, [ebp+12]   ; set column to the last color of last pixel in row
 
-    mov edx, 0          ; calculate the percentage
-    add eax, ecx
-    sub eax, [ebp+16]
-    add eax, [ebp+20]
+    ; set column to the last color of last pixel in row
+    ; calc percentage
 
 loop_color:
-    cmp byte [edi], 0
-    jl done_pixel
-
-    mov ebx, 255
-    sub al, byte [edi]
-
-    mov dword [ebp-8], ebx
-    fld dword [ebp-8]
-    fdiv ST0, ST1
-
-done_pixel:
+    mov bl, byte [edi]
     dec edi
-    dec esi
-
-    test esi, esi
-    jnz loop_color
-
-    dec ecx
-
-    mov ebx, [ebp+16]
-    sub ebx, [ebp+20]
-    cmp ecx, ebx
-    jge loop_row
-
-    test ecx, ecx
-    jnz loop_row
+    jmp loop_color
 
 end:
     pop esi
