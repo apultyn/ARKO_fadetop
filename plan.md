@@ -21,3 +21,10 @@
     * dekrementujemy numer rzędu
     * sprawdzamy czy nie jest 0, lub czy nie jest mniejszy od wysokość - dist
         * jak tak, to kończymy
+
+
+* czytamy bajty w kolejności RGB
+* od prawego górnego rogu w lewo
+* najpierw mamy bajty rozszerzające jeżeli są potrzebne
+
+* definiowanie makro w gdb: define [nazwa]
