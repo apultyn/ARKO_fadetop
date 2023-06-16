@@ -9,6 +9,7 @@ fadetop:
     ; SETUP
     push ebp
     mov	ebp, esp
+    sub esp, 4
 
     push ebx
     push esi
@@ -84,5 +85,6 @@ end:
     pop esi
     pop ebx
 
+    mov esp, ebp
     pop	ebp
 	ret
