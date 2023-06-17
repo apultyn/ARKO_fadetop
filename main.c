@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
   fseek(file, pixelDataOffset, SEEK_SET);
   fread(image, sizeof(uint8_t), img_size, file);
 
-  fadetop(image, rowSize, height, dist);
+  fadetop(image, width, height, dist);
 
   FILE* output_file = fopen("output.bmp", "wb");
 

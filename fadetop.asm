@@ -1,6 +1,10 @@
 ;==========================================================
 ; fadetop - brigthning bmp file (24 bits per pixel)
 ; Andrzej Pultyn
+; variables:
+; ebp-4 - coefficient for row
+; ebp-8 - bytes in row to brighten
+; ebp-12 - extra bytes
 ;==========================================================
 section	.text
 global fadetop
@@ -9,7 +13,7 @@ fadetop:
     ; SETUP
     push ebp
     mov	ebp, esp
-    sub esp, 4
+    sub esp, 12
 
     push ebx
     push esi
@@ -26,14 +30,24 @@ fadetop:
     cmp edx, 0          ; verify, if dist greater than 0
     jle end
 
-    mov eax, esi        ; set pointer to last pixel
+    mov eax, [ebp+12]   ; calculate bytes in row to brighten, and added bytes
+    imul eax, 3
+    mov [ebp-8], eax
+    mov esi, eax
+    and eax, 0x3
+    mov ebx, 4
+    sub ebx, eax
+    and ebx, 0x3
+    mov [ebp-12], ebx
+
+    mov eax, [ebp-8]        ; set pointer to last pixel
+    add eax, [ebp-12]
     imul eax, ecx
     add edi, eax
 
-    inc esi
 
 loop_row:
-    xor edx, edx        ; calculate coefficient
+    xor edx, edx        ; calculate coefficient for row
     mov eax, ecx
     sub eax, [ebp+16]
     add eax, [ebp+20]
@@ -41,10 +55,24 @@ loop_row:
     idiv dword [ebp+20]
     mov [ebp-4], eax
 
-    xor ebx, ebx
-    mov ebx, [ebp-4]
+    mov ebx, [ebp-4]    ; load coefficient value
+    mov edx, [ebp-12]   ; load extra bytes value
+    inc edx
+    inc edi
+
+skip_extra:
+    dec edi
+    dec edx
+    test edx, edx
+    jnz skip_extra
 
 loop_color:
+    cmp esi, 0
+    je restart
+
+    cmp ecx, 0
+    je end
+
     dec edi
     dec esi
     mov edx, 255        ; set up register
@@ -54,7 +82,7 @@ loop_color:
     cmp ebx, edx        ; check if
     je loop_color
 
-    sub edx, ebx
+    sub edx, ebx        ; brightening
     imul edx, [ebp-4]
     mov eax, edx
     xor edx, edx
@@ -65,13 +93,11 @@ loop_color:
     add ebx, eax
     mov byte [edi], bl
 
-    cmp ecx, 0
-    je end
-
     cmp esi, 0
     jne loop_color
 
-    mov esi, [ebp+12]   ; set element in row count to last
+restart:
+    mov esi, [ebp-8]   ; set element in row count to last
     dec ecx
 
     mov edx, [ebp+16]
