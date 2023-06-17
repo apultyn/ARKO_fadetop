@@ -1,39 +1,53 @@
 ;==========================================================
 ; fadetop - brigthning bmp file (24 bits per pixel)
 ; Andrzej Pultyn
+; variables:
+; ebp-4 - coefficient for row
+; ebp-8 - bytes in row to brighten
+; ebp-12 - extra bytes
 ;==========================================================
 section	.text
 global fadetop
 
 fadetop:
-    ; SETUP
+    ; Prologue
     push ebp
     mov	ebp, esp
-    sub esp, 4
+    sub esp, 12
 
     push ebx
     push esi
     push edi
 
-    mov edi, [ebp+8]    ; picture, nie do użytku w obliczeniach
-    mov esi, [ebp+12]   ; width, nie do użytku w obliczeniach
-    mov ecx, [ebp+16]   ; height, nie do użytku w obliczeniach
+    mov edi, [ebp+8]    ; picture
+    mov esi, [ebp+12]   ; width (px)
+    mov ecx, [ebp+16]   ; height
     mov edx, [ebp+20]   ; dist
 
     mov eax, 0
     mov ebx, 0
 
-    cmp edx, 0          ; verify, if dist greater than 0
-    jle end
+    ; calculate width of picture in bytes, and amount of byte extension
+    mov eax, [ebp+12]
+    imul eax, 3
+    mov [ebp-8], eax
+    mov esi, eax
+    and eax, 0x3
+    mov ebx, 4
+    sub ebx, eax
+    and ebx, 0x3
+    mov [ebp-12], ebx
 
-    mov eax, esi        ; set pointer to last pixel
+    ; setting pointer to last pixel
+    mov eax, [ebp-8]
+    add eax, [ebp-12]
     imul eax, ecx
     add edi, eax
 
-    inc esi
 
 loop_row:
-    xor edx, edx        ; calculate coefficient
+    ; calculating coefficient for row
+    xor edx, edx
     mov eax, ecx
     sub eax, [ebp+16]
     add eax, [ebp+20]
@@ -41,19 +55,37 @@ loop_row:
     idiv dword [ebp+20]
     mov [ebp-4], eax
 
-    xor ebx, ebx
+    ; preparing registers for operations
     mov ebx, [ebp-4]
+    mov edx, [ebp-12]
+    inc edx
+    inc edi
+
+skip_extra:
+    ; skipping byte extension
+    dec edi
+    dec edx
+    test edx, edx
+    jnz skip_extra
 
 loop_color:
+    ; brightening loop
+    cmp esi, 0
+    je restart
+
+    cmp ecx, 0
+    je end
+
     dec edi
     dec esi
-    mov edx, 255        ; set up register
+    mov edx, 255
 
     mov bl, byte [edi]  ; load color
 
-    cmp ebx, edx        ; check if
+    cmp ebx, edx
     je loop_color
 
+    ; brightening
     sub edx, ebx
     imul edx, [ebp-4]
     mov eax, edx
@@ -65,13 +97,12 @@ loop_color:
     add ebx, eax
     mov byte [edi], bl
 
-    cmp ecx, 0
-    je end
-
     cmp esi, 0
     jne loop_color
 
-    mov esi, [ebp+12]   ; set element in row count to last
+restart:
+    ; moving for next row
+    mov esi, [ebp-8]
     dec ecx
 
     mov edx, [ebp+16]
@@ -81,6 +112,7 @@ loop_color:
     jg loop_row
 
 end:
+    ; epilogue
     pop edi
     pop esi
     pop ebx
