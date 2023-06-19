@@ -20,8 +20,8 @@ fadetop:
     push edi
 
     mov edi, [ebp+8]    ; picture
-    mov esi, [ebp+12]   ; width (px)
-    mov ecx, [ebp+16]   ; height
+    mov ecx, [ebp+12]   ; width (px)
+    mov esi, [ebp+16]   ; height
     mov edx, [ebp+20]   ; dist
 
     ; calculate width of picture in bytes
@@ -40,14 +40,14 @@ fadetop:
     mov eax, [ebp-8]
     add eax, [ebp-12]
     mul dword [ebp+16]
-    lea edi, [edi + eax]
+    lea edi, [edi + eax - 1]
 
 
 loop_row:
     ; calculating coefficient for row
 
     xor edx, edx
-    mov eax, ecx
+    mov eax, esi
     sub eax, [ebp+16]
     add eax, [ebp+20]
     mov ebx, 100
@@ -55,53 +55,41 @@ loop_row:
     div dword [ebp+20]
     mov [ebp-4], eax
 
-    mov ebx, [ebp-4]
-    mov edx, [ebp-12]
-    mov esi, [ebp-8]
+    ; setup loop through colors
+    mov ecx, [ebp-8]
 
-    sub edi, [ebp-12]    ; skip extra bytes
+    ; skip extra bytes
+    sub edi, [ebp-12]
 
 loop_color:
     ; brightening loop
-    cmp esi, 0
-    je restart
-
-    cmp ecx, 0
-    je end
-
-    dec edi
-    dec esi
-    mov edx, 255
-
     mov bl, byte [edi]  ; load color
 
-    cmp ebx, edx
-    je loop_color
-
     ; brightening
-    sub edx, ebx
-    imul edx, [ebp-4]
-    mov eax, edx
-    xor edx, edx
-    mov ebx, 100
-    idiv dword ebx
-    xor ebx, ebx
+    mov al, 0xff
+    sub al, bl
+    mul byte [ebp-4]
+
+    mov bl, 100
+    div bl
+
     mov bl, byte [edi]
-    add ebx, eax
+    add bl, al
     mov byte [edi], bl
 
-    cmp esi, 0
-    jne loop_color
+    dec edi
+
+    loop loop_color
 
 restart:
     ; moving for next row
-    mov esi, [ebp-8]
-    dec ecx
+    mov ecx, [ebp-8]
+    dec esi
 
     mov edx, [ebp+16]
     sub edx, [ebp+20]
 
-    cmp ecx, edx
+    cmp esi, edx
     jg loop_row
 
 end:
