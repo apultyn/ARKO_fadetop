@@ -69,12 +69,11 @@ loop_color:
     mov al, 0xff
     sub al, bl
     mul byte [ebp-4]
-
     mov bl, 100
     div bl
-
     mov bl, byte [edi]
     add bl, al
+
     mov byte [edi], bl
 
     dec edi
@@ -86,6 +85,10 @@ restart:
     mov ecx, [ebp-8]
     dec esi
 
+    cmp edi, [ebp+8]
+    jb end
+
+    ; check if not over dist
     mov edx, [ebp+16]
     sub edx, [ebp+20]
 
