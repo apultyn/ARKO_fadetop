@@ -39,26 +39,27 @@ fadetop:
     ; setting pointer to last pixel
     mov eax, [ebp-8]
     add eax, [ebp-12]
-    mul ecx
+    mul dword [ebp+16]
     lea edi, [edi + eax]
 
 
 loop_row:
-    mov esi, [ebp-8]
     ; calculating coefficient for row
+
     xor edx, edx
     mov eax, ecx
     sub eax, [ebp+16]
     add eax, [ebp+20]
-    imul eax, 100
-    idiv dword [ebp+20]
+    mov ebx, 100
+    mul ebx
+    div dword [ebp+20]
     mov [ebp-4], eax
 
-    ; preparing registers for operations
     mov ebx, [ebp-4]
     mov edx, [ebp-12]
+    mov esi, [ebp-8]
 
-    sub edi, edx
+    sub edi, [ebp-12]    ; skip extra bytes
 
 loop_color:
     ; brightening loop
