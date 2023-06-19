@@ -6,6 +6,7 @@
 ; ebp-8 - bytes in row to brighten
 ; ebp-12 - extra bytes
 ;==========================================================
+
 section	.text
 global fadetop
 
@@ -63,7 +64,7 @@ loop_row:
 
 loop_color:
     ; brightening loop
-    mov bl, byte [edi]  ; load color
+    mov bl, byte [edi]
 
     ; brightening
     mov al, 0xff
@@ -75,7 +76,6 @@ loop_color:
     add bl, al
 
     mov byte [edi], bl
-
     dec edi
 
     loop loop_color
@@ -85,8 +85,9 @@ restart:
     mov ecx, [ebp-8]
     dec esi
 
+    ; check if still on picture
     cmp edi, [ebp+8]
-    jb end
+    jl end
 
     ; check if not over dist
     mov edx, [ebp+16]
