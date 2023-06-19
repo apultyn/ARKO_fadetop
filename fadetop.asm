@@ -24,9 +24,6 @@ fadetop:
     mov ecx, [ebp+16]   ; height
     mov edx, [ebp+20]   ; dist
 
-    mov eax, 0
-    mov ebx, 0
-
     ; calculate width of picture in bytes, and amount of byte extension
     mov eax, [ebp+12]
     imul eax, 3
@@ -58,15 +55,8 @@ loop_row:
     ; preparing registers for operations
     mov ebx, [ebp-4]
     mov edx, [ebp-12]
-    inc edx
-    inc edi
 
-skip_extra:
-    ; skipping byte extension
-    dec edi
-    dec edx
-    test edx, edx
-    jnz skip_extra
+    lea edi, [edi - 3]
 
 loop_color:
     ; brightening loop
