@@ -79,7 +79,6 @@ loop_color:
 
     loop loop_color
 
-restart:
     ; moving for next row
     mov ecx, [ebp-8]
     dec esi
