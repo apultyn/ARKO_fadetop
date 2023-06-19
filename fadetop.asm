@@ -24,11 +24,12 @@ fadetop:
     mov ecx, [ebp+16]   ; height
     mov edx, [ebp+20]   ; dist
 
-    ; calculate width of picture in bytes, and amount of byte extension
+    ; calculate width of picture in bytes
     mov eax, [ebp+12]
-    imul eax, 3
+    lea eax, [eax*3]
     mov [ebp-8], eax
-    mov esi, eax
+
+    ; calculate extra bytes to skip
     and eax, 0x3
     mov ebx, 4
     sub ebx, eax
@@ -38,11 +39,12 @@ fadetop:
     ; setting pointer to last pixel
     mov eax, [ebp-8]
     add eax, [ebp-12]
-    imul eax, ecx
-    add edi, eax
+    mul ecx
+    lea edi, [edi + eax]
 
 
 loop_row:
+    mov esi, [ebp-8]
     ; calculating coefficient for row
     xor edx, edx
     mov eax, ecx
