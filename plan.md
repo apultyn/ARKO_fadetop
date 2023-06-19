@@ -28,3 +28,6 @@
 * najpierw mamy bajty rozszerzające jeżeli są potrzebne
 
 * definiowanie makro w gdb: define [nazwa]
+
+
+* memory leaks: valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./fadetop photos/photo6.bmp 10

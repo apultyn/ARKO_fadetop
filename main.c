@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
   if (actual_bitsPerPixel != bitsPerPixel)
   {
     printf("BMP file must be in format 24 bites per pixel!\n");
+    fclose(inputFile);
     return 0;
   }
 
@@ -65,10 +66,7 @@ int main(int argc, char* argv[])
   img_size = rowSize * height;
   uint8_t *image = malloc(img_size);
 
-  printf("Parametry obrazu: szerokość - %i px, wysokość - %i px\n", width, height);
-  printf("Szerokość wiersza: %iB\n", rowSize);
-  printf("Wielkość tabeli pixeli: %iB\n", img_size);
-  printf("Pixel data offset: %i\n", pixelDataOffset);
+  printf("Picture dimenshions: width - %i px, height - %i px\n", width, height);
 
   // wczytanie tablicy pixeli
   fseek(inputFile, pixelDataOffset, SEEK_SET);
@@ -92,5 +90,7 @@ int main(int argc, char* argv[])
   fclose(inputFile);
   fclose(outputFile);
   free(image);
+
+  printf("Picture modified!\n");
   return 0;
 }

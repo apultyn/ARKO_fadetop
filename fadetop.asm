@@ -46,13 +46,12 @@ fadetop:
 
 loop_row:
     ; calculating coefficient for row
-
-    xor edx, edx
     mov eax, esi
     sub eax, [ebp+16]
     add eax, [ebp+20]
     mov ebx, 100
     mul ebx
+    xor edx, edx
     div dword [ebp+20]
     mov [ebp-4], eax
 
