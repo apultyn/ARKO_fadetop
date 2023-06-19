@@ -56,7 +56,7 @@ loop_row:
     mov ebx, [ebp-4]
     mov edx, [ebp-12]
 
-    lea edi, [edi - 3]
+    sub edi, edx
 
 loop_color:
     ; brightening loop
