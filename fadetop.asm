@@ -6,6 +6,7 @@
 ; ebp-8 - bytes in row to brighten
 ; ebp-12 - extra bytes
 ;==========================================================
+
 section	.text
 global fadetop
 
@@ -20,18 +21,16 @@ fadetop:
     push edi
 
     mov edi, [ebp+8]    ; picture
-    mov esi, [ebp+12]   ; width (px)
-    mov ecx, [ebp+16]   ; height
+    mov ecx, [ebp+12]   ; width (px)
+    mov esi, [ebp+16]   ; height
     mov edx, [ebp+20]   ; dist
 
-    mov eax, 0
-    mov ebx, 0
-
-    ; calculate width of picture in bytes, and amount of byte extension
+    ; calculate width of picture in bytes
     mov eax, [ebp+12]
-    imul eax, 3
+    lea eax, [eax*3]
     mov [ebp-8], eax
-    mov esi, eax
+
+    ; calculate extra bytes to skip
     and eax, 0x3
     mov ebx, 4
     sub ebx, eax
@@ -41,74 +40,59 @@ fadetop:
     ; setting pointer to last pixel
     mov eax, [ebp-8]
     add eax, [ebp-12]
-    imul eax, ecx
-    add edi, eax
+    mul dword [ebp+16]
+    lea edi, [edi + eax - 1]
 
 
 loop_row:
     ; calculating coefficient for row
-    xor edx, edx
-    mov eax, ecx
+    mov eax, esi
     sub eax, [ebp+16]
     add eax, [ebp+20]
-    imul eax, 100
-    idiv dword [ebp+20]
+    mov ebx, 100
+    mul ebx
+    xor edx, edx
+    div dword [ebp+20]
     mov [ebp-4], eax
 
-    ; preparing registers for operations
-    mov ebx, [ebp-4]
-    mov edx, [ebp-12]
-    inc edx
-    inc edi
+    ; setup loop through colors
+    mov ecx, [ebp-8]
 
-skip_extra:
-    ; skipping byte extension
-    dec edi
-    dec edx
-    test edx, edx
-    jnz skip_extra
+    ; skip extra bytes
+    sub edi, [ebp-12]
 
 loop_color:
     ; brightening loop
-    cmp esi, 0
-    je restart
-
-    cmp ecx, 0
-    je end
-
-    dec edi
-    dec esi
-    mov edx, 255
-
-    mov bl, byte [edi]  ; load color
-
-    cmp ebx, edx
-    je loop_color
+    mov bl, byte [edi]
 
     ; brightening
-    sub edx, ebx
-    imul edx, [ebp-4]
-    mov eax, edx
-    xor edx, edx
-    mov ebx, 100
-    idiv dword ebx
-    xor ebx, ebx
+    mov al, 0xff
+    sub al, bl
+    mul byte [ebp-4]
+    mov bl, 100
+    div bl
     mov bl, byte [edi]
-    add ebx, eax
-    mov byte [edi], bl
+    add bl, al
 
-    cmp esi, 0
-    jne loop_color
+    mov byte [edi], bl
+    dec edi
+
+    loop loop_color
 
 restart:
     ; moving for next row
-    mov esi, [ebp-8]
-    dec ecx
+    mov ecx, [ebp-8]
+    dec esi
 
+    ; check if still on picture
+    cmp edi, [ebp+8]
+    jl end
+
+    ; check if not over dist
     mov edx, [ebp+16]
     sub edx, [ebp+20]
 
-    cmp ecx, edx
+    cmp esi, edx
     jg loop_row
 
 end:
